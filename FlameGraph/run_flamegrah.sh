@@ -28,6 +28,9 @@ done
 # 执行后在当前目录下会生成采样数据 perf.data
 rm -rf perf.data
 
+# perf record -e cpu-clock --call-graph dwarf -C $2 -- sleep 5
+# perf record              --call-graph lbr   -C $2 -- sleep 5
+
 if [ $opt_type == "c" ]; then
 	printf "\e[32m Collect data on cpu $2\e[0m\n"
 	perf record -e cpu-clock --call-graph dwarf -C $2 -- sleep 5
