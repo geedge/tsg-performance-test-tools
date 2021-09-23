@@ -33,11 +33,22 @@ verify_debuginfo_version()
 	fi
 }
 
+download_only_rpm()
+{
+	debuginfo=`echo $1 | awk -F '-' '{print $1 "-debuginfo-" $2}'`
+	devel=`echo $1 | awk -F '-' '{print $1 "-devel-" $2}'`
+	printf "\e[31m yum install --downloadonly %-35s %-35s %-35s\e[0m\n" "$1 $debuginfo $devel"
+	yum install --downloadonly --downloaddir=./ $1
+	yum install --downloadonly --downloaddir=./ $debuginfo
+	yum install --downloadonly --downloaddir=./ $devel
+}
+
 usage()
 {
 	printf "	-c	Check whether the rpm specified by tsg-os is installed\n"
 	printf "	-i	Install debuginfo corresponding to rpm\n"
 	printf "	-v	Verify that the version of debuginfo installed is correct\n"
+	printf "	-d	Download only rpm/devel/debuginfo\n"
 	printf "	-h	Help\n"
 	exit 0
 }
@@ -54,12 +65,13 @@ if [ "$1" == "" ]; then
 fi
 
 opt_type="h"
-while getopts civh opt
+while getopts civhd opt
 do
 	case $opt in
 		c) opt_type="c" ;;
 		i) opt_type="i" ;;
 		v) opt_type="v" ;;
+		d) opt_type="d" ;;
 		h|?) usage ;;
 	esac
 done
@@ -74,6 +86,8 @@ do
 		install_rpm_debugino ${rpm}
 	elif [ $opt_type == "v" ]; then
 		verify_debuginfo_version ${rpm} ${RPM_DB}
+	elif [ $opt_type == "d" ]; then
+		download_only_rpm ${rpm}
 	fi
 done
 rm -rf ${RPM_DB}
